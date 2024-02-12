@@ -116,3 +116,54 @@ class BoardInputTypeDialog(tk.Toplevel):
         print("Board type:", f"{self.board_type}x{self.board_type}")
         print("Input type:", "Text" if self.input_type == 1 else "Speech")
         self.destroy()
+
+
+class PlaceholderEntry(tk.Entry):
+    """
+    A text input widget with a placeholder.
+
+    Attributes:
+        placeholder: The placeholder text.
+    """
+
+    def __init__(self, parent=None, placeholder="", **kwargs):
+        """
+        Initialize the text input widget.
+
+        Args:
+            parent: The parent widget.
+            placeholder: The placeholder text.
+            **kwargs: Arbitrary keyword arguments.
+        """
+        super().__init__(parent, **kwargs)
+        self.placeholder = placeholder
+        self.insert(0, self.placeholder)
+        self.bind("<FocusIn>", self.on_focus_in)
+        self.bind("<FocusOut>", self.on_focus_out)
+
+    def on_focus_in(self, event):
+        """
+        Remove the placeholder text when the widget is in focus.
+
+        Args:
+            event: The event object.
+        """
+        if self.get() == self.placeholder:
+            self.delete(0, "end")
+
+    def on_focus_out(self, event):
+        """
+        Insert the placeholder text when the widget is out of focus.
+
+        Args:
+            event: The event object.
+        """
+        if not self.get():
+            self.insert(0, self.placeholder)
+
+    def update(self, placeholder=""):
+        """
+        Update the placeholder.
+        """
+        self.delete(0, "end")
+        self.insert(0, placeholder)

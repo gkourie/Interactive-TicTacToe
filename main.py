@@ -1,7 +1,7 @@
 import numpy as np
 import tkinter as tk
 from tkinter import messagebox
-from util import BoardInputTypeDialog, Player, Messages
+from util import BoardInputTypeDialog, Player, Messages, PlaceholderEntry
 import speech_recognition as sr
 from nltk.tokenize import word_tokenize
 
@@ -36,7 +36,8 @@ class TicTacToe:
             if self.mic_is_on:
                 self.listening(wait_for_stop=False)
             if self.winner is None and self.window.winfo_exists():
-                self.process_text()
+                self.create_text_input()
+
         # speech input
         elif self.input_type == 2:
             self.mic_is_on = True
@@ -60,6 +61,31 @@ class TicTacToe:
         for row in range(self.rows):
             for col in range(self.rows):
                 self.create_button(row, col)
+
+    def create_text_input(self):
+        """
+        Creates an entry field and a submit button for text input.
+        """
+        self.entry = PlaceholderEntry(
+            self.window,
+            placeholder=Messages.Player_TURN.value.format(self.current_player.value),
+        )
+        self.entry.grid(
+            row=self.rows + 1,
+            column=0,
+            columnspan=self.rows - 1,
+            sticky="nsew",
+        )
+        self.submit_button = tk.Button(
+            self.window,
+            text="Submit",
+            command=self.process_text,
+            activebackground="#55a630",
+            background="#2b9348",
+            cursor="hand2",
+            font=("Times New Roman", 11, "bold"),
+        )
+        self.submit_button.grid(row=self.rows + 1, column=self.rows - 1, sticky="nsew")
 
     def create_button(self, row, col):
         """
@@ -124,14 +150,14 @@ class TicTacToe:
                 Player.O if self.current_player == Player.X else Player.X
             )
             self.check_winner()
-
+        # update the entry field
+        self.entry.update(Messages.Player_TURN.value.format(self.current_player.value))
         print(Messages.Player_TURN.value.format(self.current_player.value))
 
     def check_winner(self):
         """
         Checks for a winner or a tie in the game.
         """
-
         # Check rows
         for i, row in enumerate(self.board):
             winner, coordinates = self.check_consecutive(
@@ -180,6 +206,7 @@ class TicTacToe:
                 if self.mic_is_on:
                     self.listening(wait_for_stop=False)
                 self.window.quit()
+                return
 
     def check_3x3_diagonals(self):
         """
@@ -334,20 +361,6 @@ class TicTacToe:
             self.input_type = input_type
             self.init_input_type()
 
-    def main_loop(self):
-        """
-        Starts the main event loop to keep the game window alive.
-        """
-        self.window.protocol("WM_DELETE_WINDOW", self.window.quit())
-        self.window.bind("<Destroy>", self.window.quit())
-        try:
-            self.window.mainloop()
-        except KeyboardInterrupt:
-            print(Messages.QUIT.value)
-            if input() == "y":
-                self.window.quit()
-                return
-
     def extract_coordinates(self, input):
         """
         Extracts the row and column indices from the input.
@@ -396,40 +409,18 @@ class TicTacToe:
 
     def process_text(self):
         """
-        Process the text input.
-
-        Parameters:
-        - move (str): The move entered by the player.
+        Processes the text input.
         """
-
-        def submit():
-            move = entry.get()
-            print(move)
-            entry.delete(0, "end")  # clear the entry field
-            try:
-                row, col = self.extract_coordinates(move)
-                if (row is not None) and (col is not None):
-                    self.handle_click(row, col)
-                else:
-                    raise ValueError
-            except ValueError:
-                print("Invalid move!", Messages.WARNING_TEXT.value)
-            except IndexError:
-                print("Invalid move!", Messages.WARNING_TEXT.value)
-            except KeyboardInterrupt:
-                print("submit. Do you want to quit? (y/n)")
-                if input() == "y":
-                    self.window.quit()
-                    return
-            except Exception:
-                return
-
-        print(Messages.WARNING_TEXT.value)
-        entry = tk.Entry(self.window)
-        entry.config(state="normal")
-        entry.grid(row=self.rows + 1, column=0, columnspan=self.rows - 1, sticky="nsew")
-        submit_button = tk.Button(self.window, text="Submit", command=submit)
-        submit_button.grid(row=self.rows + 1, column=self.rows - 1, sticky="nsew")
+        move = self.entry.get()
+        self.entry.update()
+        try:
+            row, col = self.extract_coordinates(move)
+            if (row is not None) and (col is not None):
+                self.handle_click(row, col)
+            else:
+                raise ValueError
+        except ValueError:
+            print("Invalid move!", Messages.WARNING_TEXT.value)
 
     def process_speech(self, recognizer, audio):
         """
@@ -453,6 +444,21 @@ class TicTacToe:
             print(Messages.GOOGLE_REQUEST_ERROR.value.format(e))
         except ValueError:
             print("Invalid move!", Messages.WARNING_SPEECH.value)
+
+    def main_loop(self):
+        """
+        Starts the main event loop to keep the game window alive.
+        """
+        self.window.protocol("WM_DELETE_WINDOW", self.close_app)
+        self.window.bind("<Destroy>", self.close_app)
+        self.window.mainloop()
+
+    def close_app(self):
+        """
+        Closes the game window.
+        """
+        self.window.quit()
+        return
 
 
 def msg_box():
@@ -489,10 +495,10 @@ def start_game():
         game.init_board()
         game.init_input_type()
         game.main_loop()
+    except Exception as e:
         # stop listening
         if game.mic_is_on:
             game.listening(wait_for_stop=False)
-    except Exception as e:
         print("Game Over")
         print(e)
         return
