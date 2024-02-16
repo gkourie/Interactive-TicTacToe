@@ -3,6 +3,9 @@ import tkinter as tk
 from tkinter import messagebox
 from util import BoardInputTypeDialog, Player, Messages, PlaceholderEntry
 import speech_recognition as sr
+# need for first time run
+# import nltk
+# nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 
 
@@ -36,7 +39,7 @@ class TicTacToe:
             if self.mic_is_on:
                 self.listening(wait_for_stop=False)
             if self.winner is None and self.window.winfo_exists():
-                self.create_text_input()
+                self.create_text_input(readonly=False)
 
         # speech input
         elif self.input_type == 2:
@@ -49,6 +52,8 @@ class TicTacToe:
                 self.r.adjust_for_ambient_noise(source)
             # start listening
             self.listening = self.r.listen_in_background(self.m, self.process_speech)
+            if self.winner is None and self.window.winfo_exists():
+                self.create_text_input(readonly=True)
         else:
             raise ValueError(Messages.INPUT_TYPE_ERROR.value.format(self.input_type))
 
@@ -62,13 +67,14 @@ class TicTacToe:
             for col in range(self.rows):
                 self.create_button(row, col)
 
-    def create_text_input(self):
+    def create_text_input(self, readonly):
         """
         Creates an entry field and a submit button for text input.
         """
         self.entry = PlaceholderEntry(
             self.window,
             placeholder=Messages.Player_TURN.value.format(self.current_player.value),
+            readonly=readonly
         )
         self.entry.grid(
             row=self.rows + 1,
@@ -76,7 +82,8 @@ class TicTacToe:
             columnspan=self.rows - 1,
             sticky="nsew",
         )
-        self.submit_button = tk.Button(
+        if not readonly: 
+            self.submit_button = tk.Button(
             self.window,
             text="Submit",
             command=self.process_text,
@@ -85,7 +92,7 @@ class TicTacToe:
             cursor="hand2",
             font=("Times New Roman", 11, "bold"),
         )
-        self.submit_button.grid(row=self.rows + 1, column=self.rows - 1, sticky="nsew")
+            self.submit_button.grid(row=self.rows + 1, column=self.rows - 1, sticky="nsew")
 
     def create_button(self, row, col):
         """

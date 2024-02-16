@@ -126,7 +126,7 @@ class PlaceholderEntry(tk.Entry):
         placeholder: The placeholder text.
     """
 
-    def __init__(self, parent=None, placeholder="", **kwargs):
+    def __init__(self, parent=None, placeholder="", readonly=False, **kwargs):
         """
         Initialize the text input widget.
 
@@ -140,6 +140,8 @@ class PlaceholderEntry(tk.Entry):
         self.insert(0, self.placeholder)
         self.bind("<FocusIn>", self.on_focus_in)
         self.bind("<FocusOut>", self.on_focus_out)
+        self.readonly = readonly
+        if self.readonly: self.configure(state="readonly")
 
     def on_focus_in(self, event):
         """
@@ -165,5 +167,10 @@ class PlaceholderEntry(tk.Entry):
         """
         Update the placeholder.
         """
+        # need to change the state to normal to update the placeholder
+        if self.readonly:
+            self.configure(state="normal")
         self.delete(0, "end")
         self.insert(0, placeholder)
+        if self.readonly:
+            self.configure(state="readonly")
