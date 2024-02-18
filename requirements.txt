@@ -1,0 +1,7 @@
+numpy
+tk
+nltk
+SpeechRecognition
+PyAudio
+setuptools
+google-api-python-client
