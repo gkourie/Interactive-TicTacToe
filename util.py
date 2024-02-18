@@ -12,7 +12,8 @@ class Messages(Enum):
     WARNING_SPEECH = "Please specify the row and column by saying two numbers between one and the size of the chosen board type. For example, say 'first row and second column' to place your move in the first row and second column."
     WARNING_TEXT = "Please specify the row and column by stating two numbers between one and the size of the chosen board type. For instance, you can type 'first row and second column' to indicate the first row and second column. Alternatively, you can type '1 row and 2 column' or simply '1 2' separated with space."
     QUIT = "Do you want to quit the game? (y/n): "
-    GAME_OVER = "{0}\nrematch?"
+    REMATCH = "{0}\nrematch?"
+    GAME_OVER = "Game over!"
     Player_TURN = "Player {0}'s turn. Please make your move."
     INPUT_TYPE_ERROR = "input_type must be 1 for text input or 2 for speech input: {0} is not a valid input type."
     WINNER = "Player {0} wins :)"
@@ -167,6 +168,7 @@ class PlaceholderEntry(tk.Entry):
         """
         Update the placeholder.
         """
+        self.placeholder = placeholder
         # need to change the state to normal to update the placeholder
         if self.readonly:
             self.configure(state="normal")
