@@ -473,7 +473,6 @@ class TicTacToe:
         Closes the game window.
         """
         self.window.quit()
-        return
 
 
 def msg_box():
@@ -512,6 +511,9 @@ def start_game():
         while True:
             try:
                 game.main_loop()
+                if game.mic_is_on:
+                        game.listening(wait_for_stop=False)
+                return
             except KeyboardInterrupt:
                 print(Messages.QUIT.value)
                 cm_input = input()
