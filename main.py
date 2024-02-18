@@ -87,8 +87,8 @@ class TicTacToe:
             self.window,
             text="Submit",
             command=self.process_text,
-            activebackground="#55a630",
-            background="#2b9348",
+            activebackground="#0096c7",
+            background="#00b4d8",
             cursor="hand2",
             font=("Times New Roman", 11, "bold"),
         )
