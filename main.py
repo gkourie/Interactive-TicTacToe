@@ -396,10 +396,12 @@ class TicTacToe:
                 if i + 1 < len(tokens):
                     if tokens[i + 1] == "row":
                         row = number_map[token]
-                    elif tokens[i + 1] == "column":
+                    elif tokens[i + 1] == "column" or tokens[i + 1] == "columns":
                         col = number_map[token]
                     else:
                         raise ValueError
+            elif token == "middle":
+                row = col = self.rows // 2
             else:
                 try:
                     num = int(token)
