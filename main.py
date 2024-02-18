@@ -10,6 +10,7 @@ from nltk.tokenize import word_tokenize
 
 
 class TicTacToe:
+    ## Inits ##
     def __init__(self, title="Tic Tac Toe", rows=3, input_type=1):
         """
         Initializes the Tic Tac Toe game.
@@ -67,6 +68,7 @@ class TicTacToe:
             for col in range(self.rows):
                 self.create_button(row, col)
 
+    ## Create ##
     def create_text_input(self, readonly):
         """
         Creates an entry field and a submit button for text input.
@@ -113,7 +115,41 @@ class TicTacToe:
         # buttons expand with window
         tk.Grid.rowconfigure(self.window, row, weight=1)
         tk.Grid.columnconfigure(self.window, col, weight=1)
+    
+    def recreate_board(self):
+        """
+        Resets the game board for a rematch.
+        """
+        board_type, input_type = msg_box()
+        if (
+            (board_type is None)
+            | (board_type == 0)
+            | (input_type is None)
+            | (input_type == 0)
+        ):
+            return
+        self.board = np.zeros((board_type, board_type), dtype=int)
+        self.current_player = Player.X
+        self.winner = None
+        # same board
+        if self.rows == board_type:
+            for row in range(self.rows):
+                for col in range(self.rows):
+                    self.config_button(row, col)
+        else:
+            self.rows = board_type
+            # remove all widgets
+            for widget in self.window.winfo_children():
+                widget.grid_forget()
+            # create new board
+            self.init_board()
 
+        # different input type
+        if self.input_type != input_type:
+            self.input_type = input_type
+            self.init_input_type()
+
+    ## Config ##
     def config_button(self, row, col, text="", color="black", background="black"):
         """
         Configures a button on the game board.
@@ -127,7 +163,7 @@ class TicTacToe:
         button = self.window.grid_slaves(row=row, column=col)[0]
         button.config(text=text, fg=color, bg=background)
 
-    def change_bground(self, coordinates):
+    def config_bground(self, coordinates):
         """
         Changes the background color of the buttons at the given coordinates.
 
@@ -144,6 +180,7 @@ class TicTacToe:
             color = "red" if self.board[row, col] == 1 else "green"
             self.config_button(row, col, text=text, color=color, background="white")
 
+    ## Handle ##
     def handle_click(self, row, col):
         """
         Handles a click event on a button at the given row and column.
@@ -161,6 +198,7 @@ class TicTacToe:
         self.entry.update(Messages.Player_TURN.value.format(self.current_player.value))
         print(Messages.Player_TURN.value.format(self.current_player.value))
 
+    ## Check ##
     def check_winner(self):
         """
         Checks for a winner or a tie in the game.
@@ -171,7 +209,7 @@ class TicTacToe:
                 [(cell, (i, j)) for j, cell in enumerate(row)]
             )
             if winner:
-                self.change_bground(coordinates)
+                self.config_bground(coordinates)
                 break
 
         # Check columns
@@ -179,7 +217,7 @@ class TicTacToe:
             column = [(self.board[i][j], (i, j)) for i in range(self.rows)]
             winner, coordinates = self.check_consecutive(column)
             if winner:
-                self.change_bground(coordinates)
+                self.config_bground(coordinates)
                 break
 
         # Check diagonals
@@ -202,7 +240,7 @@ class TicTacToe:
                 message = Messages.WINNER.value.format(self.winner)
 
             play_again = messagebox.askyesno(
-                "Game Over", Messages.GAME_OVER.value.format(message)
+                "Game Over", Messages.REMATCH.value.format(message)
             )
 
             # recreate board if answer is yes otherwise close the window
@@ -230,7 +268,7 @@ class TicTacToe:
         for diagonal in diagonals:
             winner, coordinates = self.check_consecutive(diagonal)
             if winner:
-                self.change_bground(coordinates)
+                self.config_bground(coordinates)
                 return True, coordinates
 
         return False, []
@@ -264,7 +302,7 @@ class TicTacToe:
         for diagonal in diagonals:
             winner, coordinates = self.check_consecutive(diagonal)
             if winner:
-                self.change_bground(coordinates)
+                self.config_bground(coordinates)
                 return True, coordinates
 
         return False, []
@@ -299,7 +337,7 @@ class TicTacToe:
         for diagonal in diagonals:
             winner, coordinates = self.check_consecutive(diagonal)
             if winner:
-                self.change_bground(coordinates)
+                self.config_bground(coordinates)
                 return True
 
         return False
@@ -334,88 +372,8 @@ class TicTacToe:
                 coordinates = [coord]
 
         return False, []
-
-    def recreate_board(self):
-        """
-        Resets the game board for a rematch.
-        """
-        board_type, input_type = msg_box()
-        if (
-            (board_type is None)
-            | (board_type == 0)
-            | (input_type is None)
-            | (input_type == 0)
-        ):
-            return
-        self.board = np.zeros((board_type, board_type), dtype=int)
-        self.current_player = Player.X
-        self.winner = None
-        # same board
-        if self.rows == board_type:
-            for row in range(self.rows):
-                for col in range(self.rows):
-                    self.config_button(row, col)
-        else:
-            self.rows = board_type
-            # remove all widgets
-            for widget in self.window.winfo_children():
-                widget.grid_forget()
-            # create new board
-            self.init_board()
-
-        # different input type
-        if self.input_type != input_type:
-            self.input_type = input_type
-            self.init_input_type()
-
-    def extract_coordinates(self, input):
-        """
-        Extracts the row and column indices from the input.
-
-        Parameters:
-        - input (str): The input string.
-
-        Returns:
-        - tuple: The row and column indices.
-        """
-        # Map spoken/written numbers
-        number_map = {"first": 0, "1st": 0, "second": 1, "2nd": 1, "third": 2, "3rd": 2}
-        if self.rows == 5:
-            number_map.update({"fourth": 3, "4th": 3})
-            number_map.update({"fifth": 4, "5th": 4})
-        elif self == 7:
-            number_map.update({"sixth": 5, "6th": 5})
-            number_map.update({"seventh": 6, "7th": 6})
-
-        # tokenize the speech/text
-        tokens = word_tokenize(input)
-        row = None
-        col = None
-        for i, token in enumerate(tokens):
-            if token in number_map:
-                if i + 1 < len(tokens):
-                    if tokens[i + 1] == "row":
-                        row = number_map[token]
-                    elif tokens[i + 1] == "column" or tokens[i + 1] == "columns":
-                        col = number_map[token]
-                    else:
-                        raise ValueError
-            elif token == "middle":
-                row = col = self.rows // 2
-            else:
-                try:
-                    num = int(token)
-                    if (num >= 1) and (num <= self.rows):
-                        if row is None:
-                            row = num - 1
-                        elif col is None:
-                            col = num - 1
-                        else:
-                            raise ValueError
-                except ValueError:
-                    continue
-        return row, col
-
+    
+    ## Process ##
     def process_text(self):
         """
         Processes the text input.
@@ -454,15 +412,63 @@ class TicTacToe:
         except ValueError:
             print("Invalid move!", Messages.WARNING_SPEECH.value)
 
+    def extract_coordinates(self, input):
+        """
+        Extracts the row and column indices from the input.
+
+        Parameters:
+        - input (str): The input string.
+
+        Returns:
+        - tuple: The row and column indices.
+        """
+        # Map spoken/written numbers
+        number_map = {"first": 0, "1st": 0, "second": 1, "2nd": 1, "third": 2, "3rd": 2}
+        if self.rows == 5:
+            number_map.update({"fourth": 3, "4th": 3})
+            number_map.update({"fifth": 4, "5th": 4})
+        elif self == 7:
+            number_map.update({"sixth": 5, "6th": 5})
+            number_map.update({"seventh": 6, "7th": 6})
+
+        # tokenize the speech/text
+        tokens = word_tokenize(input)
+        row = None
+        col = None
+        for i, token in enumerate(tokens):
+            if token in number_map:
+                if i + 1 < len(tokens):
+                    if tokens[i + 1] == "row" or tokens[i + 1] == "rows":
+                        row = number_map[token]
+                    elif tokens[i + 1] == "column" or tokens[i + 1] == "columns" or tokens[i + 1] == "col" or tokens[i + 1] == "cols":
+                        col = number_map[token]
+                    else:
+                        raise ValueError
+            elif token == "middle":
+                row = col = self.rows // 2
+            else:
+                try:
+                    num = int(token)
+                    if (num >= 1) and (num <= self.rows):
+                        if row is None:
+                            row = num - 1
+                        elif col is None:
+                            col = num - 1
+                        else:
+                            raise ValueError
+                except ValueError:
+                    continue
+        return row, col
+    ## Main ##
     def main_loop(self):
         """
         Starts the main event loop to keep the game window alive.
         """
-        self.window.protocol("WM_DELETE_WINDOW", self.close_app)
-        self.window.bind("<Destroy>", self.close_app)
+        self.window.protocol("WM_DELETE_WINDOW", self.close_main_app)
+        self.window.bind("<Destroy>", self.close_main_app)
         self.window.mainloop()
 
-    def close_app(self):
+    def close_main_app(self):
         """
         Closes the game window.
         """
@@ -503,14 +509,24 @@ def start_game():
         game = TicTacToe(rows=board_type, input_type=input_type)
         game.init_board()
         game.init_input_type()
-        game.main_loop()
+        while True:
+            try:
+                game.main_loop()
+            except KeyboardInterrupt:
+                print(Messages.QUIT.value)
+                cm_input = input()
+                if cm_input.lower() in ["y", "yes"]:
+                    if game.mic_is_on:
+                        game.listening(wait_for_stop=False)
+                    print("Quiting...")
+                    break
     except Exception as e:
         # stop listening
         if game.mic_is_on:
             game.listening(wait_for_stop=False)
-        print("Game Over")
         print(e)
+        print(Messages.GAME_OVER.value)
         return
 
-
-start_game()
+if __name__ == "__main__":
+    start_game()
