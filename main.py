@@ -42,7 +42,7 @@ class TicTacToe:
             if self.winner is None and self.window.winfo_exists():
                 self.create_text_input(readonly=False)
 
-        # speech input
+        # speech input (https://github.com/Uberi/speech_recognition/blob/master/examples/background_listening.py)
         elif self.input_type == 2:
             self.mic_is_on = True
             # obtain audio from the microphone
@@ -115,7 +115,7 @@ class TicTacToe:
         # buttons expand with window
         tk.Grid.rowconfigure(self.window, row, weight=1)
         tk.Grid.columnconfigure(self.window, col, weight=1)
-    
+
     def recreate_board(self):
         """
         Resets the game board for a rematch.
@@ -372,7 +372,7 @@ class TicTacToe:
                 coordinates = [coord]
 
         return False, []
-    
+
     ## Process ##
     def process_text(self):
         """
