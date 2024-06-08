@@ -5,7 +5,7 @@ Welcome to Interactive-TicTacToe, a modern twist on the classic TicTacToe game. 
 ## Features
 
 - **Flexible Board Sizes**: Choose from a variety of board sizes for a customized game experience.
-- **Multiple Input Methods**: Play the game your way with support for GUI, text, and even speech input.
+- **Multiple Input Methods**: Play the game your way with support for GUI, text, and even speech input ().
 
 ## Getting Started
 
@@ -46,6 +46,10 @@ python main.py
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Acknowledgements
+
+This project uses the [SpeechRecognition](https://github.com/Uberi/speech_recognition) library for speech input. SpeechRecognition is a library for performing speech recognition, with support for several engines and APIs, online and offline.
 
 ## License
 
