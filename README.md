@@ -1,11 +1,6 @@
 # Interactive-TicTacToe
 
-Welcome to Interactive-TicTacToe, a modern twist on the classic TicTacToe game. This project brings the game to your terminal with a variety of interactive features.
-
-## Features
-
-- **Flexible Board Sizes**: Choose from a variety of board sizes for a customized game experience.
-- **Multiple Input Methods**: Play the game your way with support for GUI, text, and even speech input ().
+Welcome to Interactive-TicTacToe, a simple project to play TicTacToe with support for GUI, (limited) text, and (limited) speech input.
 
 ## Getting Started
 
